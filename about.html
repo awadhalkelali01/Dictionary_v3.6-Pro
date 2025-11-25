@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ℹ️ عن التطبيق — قاموس الطالب</title>
+
+<link rel="stylesheet" href="styles.css">
+<script src="modals.js" defer></script>
+
+<style>
+.page-title {
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  color:#fff;
+  padding:14px 18px;
+  border-radius:10px;
+  text-align:center;
+  font-weight:800;
+  margin-bottom:20px;
+  font-size:1.2rem;
+}
+.about-box {
+  background:var(--card);
+  padding:20px;
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  line-height:1.75;
+  font-size:1.07rem;
+  color:var(--text);
+}
+.about-box b { color:var(--primary); }
+.center { text-align:center; }
+.icon-large {
+  width:120px;
+  display:block;
+  margin:14px auto;
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <button class="icon-btn" onclick="location.href='index.html'">🏠</button>
+  <div><h1 style="margin:0">ℹ️ عن التطبيق</h1></div>
+  <div></div>
+</header>
+
+<main class="container">
+
+  <img src="icons/app-icon.png" class="icon-large" alt="App Icon"/>
+
+  <div class="page-title">عن تطبيق قاموس الطالب</div>
+
+  <div class="about-box">
+
+    <p>
+      تطبيق <b>قاموس الطالب</b> هو مشروع تعليمي صُمم خصيصًا ليقدّم للطلاب وسيلة سهلة وسريعة
+      لحفظ الكلمات الإنجليزية، نطقها، فهم معناها، والتدرّب عليها من خلال اختبارات تفاعلية.
+    </p>
+
+    <p>
+      يعتمد التطبيق على تخزين البيانات لكل طالب على حدة، بحيث يستطيع الطالب الوصول إلى قاموسه
+      الخاص في أي وقت من خلال أي جهاز دون الحاجة للاتصال بالإنترنت
+      (بفضل دعم التطبيق لنظام <b>PWA</b> والعمل دون اتصال).
+    </p>
+
+    <p>
+      تمت مراعاة البساطة، السهولة، والوضوح في التصميم؛ بحيث يتمكن الطلاب في مختلف الصفوف من استخدام
+      التطبيق بسهولة سواء كانوا على الهاتف أو التابلت أو الكمبيوتر.
+    </p>
+
+    <div class="center" style="margin-top:20px">
+      <b>تصميم وتنفيذ: أبو عبدالله</b><br>
+      ❤️ هدية من أب لأبنائه ❤️
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="app-footer">
+  ❤️❤️ تصميم وتنفيذ: <b>أبو عبدالله</b> — هدية من أب لأبنائه ❤️❤️
+</footer>
+
+<!-- Modal / Toast placeholders -->
+<div id="sharedModalBackdrop" style="display:none;align-items:center;justify-content:center;">
+  <div id="sharedModal"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+  // تطبيق الثيم المختار
+  document.body.classList.add(localStorage.getItem("theme") || "theme-blue");
+</script>
+
+</body>
+</html>

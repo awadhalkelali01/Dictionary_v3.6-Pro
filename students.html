@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>👨‍🏫 إدارة الصفوف والطلاب</title>
+
+<link rel="stylesheet" href="styles.css">
+<script src="modals.js" defer></script>
+
+<style>
+.header-title {
+  text-align:center; 
+  font-size:1.45rem; 
+  font-weight:800; 
+  margin:0;
+}
+.actions {
+  text-align:center;
+  margin: 18px 0;
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div></div>
+  <div><h1 class="header-title">👨‍🏫 إدارة الصفوف والطلاب</h1></div>
+  <div><button class="icon-btn" onclick="location.href='index.html'">🏠</button></div>
+</header>
+
+<main class="container">
+
+  <div class="actions">
+    <button class="btn btn-main" id="btnAddClass">➕ إضافة صف</button>
+    <button class="btn btn-secondary" id="btnAddStudent">➕ إضافة طالب</button>
+  </div>
+
+  <div id="classList"></div>
+
+</main>
+
+<footer class="app-footer">
+  ❤️❤️ تصميم وتنفيذ: <b>أبو عبدالله</b> — هدية من أب لأبنائه ❤️❤️
+</footer>
+
+<!-- Modal system -->
+<div id="sharedModalBackdrop" style="display:none;align-items:center;justify-content:center;">
+  <div id="sharedModal"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ===============================
+// تطبيق الثيم عند فتح الصفحة
+// ===============================
+document.body.classList.add(localStorage.getItem("theme") || "theme-blue");
+
+// ===============================
+// جلب وتخزين الصفوف والطلاب
+// ===============================
+let classes = JSON.parse(localStorage.getItem("classes") || "{}");
+
+function saveClasses() {
+  localStorage.setItem("classes", JSON.stringify(classes));
+}
+
+// ===============================
+// عرض الكل في الصفحة
+// ===============================
+function render() {
+  const root = document.getElementById("classList");
+  let html = "";
+
+  Object.keys(classes).forEach(cls => {
+    html += `
+      <div class="info-card" style="margin-bottom:18px;">
+        <h3 style="margin:0;color:var(--primary);font-weight:800;">${cls}</h3>
+    `;
+
+    classes[cls].forEach((student, i) => {
+      html += `
+        <div class="student-item">
+          <div style="font-weight:700;">${student}</div>
+          <div class="student-buttons">
+            <button class="icon-btn" onclick="openDictionary('${cls}','${student}')">📘</button>
+            <button class="icon-btn" onclick="editStudent('${cls}', ${i})">✏️</button>
+            <button class="icon-btn" onclick="deleteStudent('${cls}', ${i})">❌</button>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  });
+
+  root.innerHTML = html || `<div class="info-card-empty">لا توجد صفوف بعد</div>`;
+}
+
+// ===============================
+// إضافة صف
+// ===============================
+btnAddClass.onclick = function () {
+  showPrompt("إضافة صف", "اسم الصف", "مثال: الصف السادس", "", val => {
+    if(!val.trim()) return;
+    if(!classes[val]) classes[val] = [];
+    saveClasses();
+    render();
+    showToast("تمت إضافة الصف");
+  });
+};
+
+// ===============================
+// إضافة طالب
+// ===============================
+btnAddStudent.onclick = function () {
+  const classNames = Object.keys(classes);
+  if(classNames.length === 0) {
+    showToast("أضف صفًا أولاً", "warn");
+    return;
+  }
+
+  showModalForm("إضافة طالب", [
+    {
+      name:"cls",
+      label:"اختر الصف",
+      type:"select",
+      options: classNames.map(c => ({value:c, text:c}))
+    },
+    {
+      name:"name",
+      label:"اسم الطالب",
+      type:"text",
+      value:""
+    }
+  ], vals => {
+    const cls = vals.cls;
+    const name = vals.name.trim();
+    if(!name) return;
+    classes[cls].push(name);
+    saveClasses();
+    render();
+    showToast("تمت إضافة الطالب");
+  });
+};
+
+// ===============================
+// تعديل اسم الطالب
+// ===============================
+function editStudent(cls, i) {
+  const current = classes[cls][i];
+  showPrompt("تعديل اسم الطالب", "الاسم الجديد", "", current, val => {
+    if(!val.trim()) return;
+    classes[cls][i] = val.trim();
+    saveClasses();
+    render();
+    showToast("تم التعديل");
+  });
+}
+
+// ===============================
+// حذف طالب
+// ===============================
+function deleteStudent(cls, i) {
+  showConfirm("حذف الطالب", "هل تريد حذف هذا الطالب؟", () => {
+    classes[cls].splice(i,1);
+    saveClasses();
+    render();
+    showToast("تم الحذف");
+  });
+}
+
+// ===============================
+// فتح قاموس الطالب المحدد
+// ===============================
+function openDictionary(cls, student) {
+  localStorage.setItem("className", cls);
+  localStorage.setItem("studentName", student);
+  location.href = "dictionary.html";
+}
+
+// ===============================
+render();
+</script>
+
+</body>
+</html>

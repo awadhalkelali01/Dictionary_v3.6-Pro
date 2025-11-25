@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>📘 قاموس الطالب — إدارة الكلمات (نسخة محسّنة)</title>
+<style>
+:root{
+  --primary:#0b63a8;
+  --primary-light:#00aaff;
+  --card:#ffffff;
+  --border:#d9e6f2;
+  --text:#222;
+  --radius:12px;
+  --shadow: 0 8px 24px rgba(0,0,0,.06);
+}
+
+/* ثيم: يمكن تغييره عبر body.classList.add('theme-...') */
+body.theme-blue { --primary:#0b63a8; --primary-light:#00aaff; }
+body.theme-green { --primary:#15803d; --primary-light:#4ade80; }
+body.theme-purple { --primary:#7c3aed; --primary-light:#c084fc; }
+body.theme-grey { --primary:#4b5563; --primary-light:#9ca3af; }
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Segoe UI",Tahoma,Arial,system-ui;
+  background:#f6f9fc;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  direction:rtl;
+}
+
+/* الهيدر */
+.app-header{
+  background: linear-gradient(90deg,var(--primary),var(--primary-light));
+  color:#fff;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:var(--shadow);
+}
+.app-header h1{ margin:0; font-size:1.15rem; font-weight:800; }
+
+/* الحاوية */
+.container{ max-width:980px; margin:18px auto; padding:18px; }
+
+/* بطاقة الجدول */
+.table-wrap {
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+
+/* تحكم عام في الجدول */
+#dictionaryTable {
+  width:100%;
+  border-collapse:collapse;
+  table-layout:auto;
+  font-size:0.99rem;
+}
+#dictionaryTable th, #dictionaryTable td{
+  padding:10px 8px; border-bottom:1px solid var(--border); vertical-align:middle;
+}
+#dictionaryTable thead th{ background:var(--primary); color:#fff; font-weight:800; 
+}
+
+/* أعمدة محددة */
+#dictionaryTable th.num-col, #dictionaryTable td.num-col { width:44px; text-align:center; }
+#dictionaryTable th.check-col, #dictionaryTable td.check-col { width:44px; text-align:center; }
+#dictionaryTable th.word-col, #dictionaryTable td.word-col {
+  width: autox;              /* كان 140px */
+  min-width: 150px;          /* يمنع تمدد زائد */
+  text-align: center;
+  direction: ltr;
+  font-weight: 800;
+  white-space: normal;        /* يسمح بكسر السطر عند الضرورة */
+  word-break: break-word;     /* يمنع خروج النص خارج الجدول */
+}
+
+#dictionaryTable th.meaning-col, #dictionaryTable td.meaning-col {
+  width: auto;              /* كان 140px */
+  min-width: 150px;
+  text-align: center;
+  direction: rtl;
+  white-space: normal;
+  word-break: break-word;
+}
+
+#dictionaryTable th.eng-sentence-col, #dictionaryTable td.eng-sentence-col {
+  width:35%;
+  text-align:left;
+  direction:ltr;
+  white-space:normal;
+  word-break:break-word;
+}
+#dictionaryTable th.ar-sentence-col, #dictionaryTable td.ar-sentence-col {
+  width:30%;
+  text-align:right;
+  direction:rtl;
+  white-space:normal;
+  word-break:break-word;
+}
+#dictionaryTable th.actions-col, #dictionaryTable td.actions-col {
+  width: 210px;     /* وسّعت لك العمود */
+  white-space: nowrap;  
+  text-align:center;
+}
+.actions-col .icon-btn{
+  margin: 0 6px;
+}
+#dictionaryTable tbody tr:nth-child(even){
+  background:#f2f7fb;
+}
+#dictionaryTable tbody tr:nth-child(odd){
+  background:#ffffff;
+}
+
+/* أزرار */
+.btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+.btn-main { background:linear-gradient(90deg,var(--primary),var(--primary-light)); color:#fff; }
+.btn-sec { background:#fff; color:var(--primary); border:1px solid var(--border); }
+.btn-danger { background:#fff0f0; color:#c23; border:1px solid rgba(194,35,35,0.1); }
+
+/* أيقونات زر */
+.icon-btn { background:none; border:none; cursor:pointer; font-size:1.15rem; color:var(--primary); padding:4px; }
+
+/* مساحات تحكم */
+.controls { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; align-items:center; margin-bottom:10px; }
+.small-note { font-size:0.95rem; color:#666; }
+.count-badge { font-weight:800; color:var(--primary); }
+
+/* مودال */
+#sharedModalBackdrop {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999;
+}
+#sharedModal {
+  background:var(--card); width:92%; max-width:520px; border-radius:12px; padding:18px; box-shadow:var(--shadow); text-align:right;
+}
+
+/* toast */
+#toast {
+  position:fixed; left:50%; transform:translateX(-50%); bottom:22px;
+  background:var(--primary); color:#fff; padding:10px 14px; border-radius:10px; z-index:10000; opacity:0; transition:opacity .2s;
+}
+
+/* footer */
+.app-footer {
+  text-align:center; padding:10px 0; color:#555; font-size:0.95rem;
+  position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,0.9); backdrop-filter:blur(4px);
+  border-top:1px solid rgba(0,0,0,0.04);
+}
+
+/* responsive */
+@media(max-width:760px){
+  #dictionaryTable th, #dictionaryTable td{ font-size:0.88rem; padding:8px; }
+  #dictionaryTable th.actions-col, #dictionaryTable td.actions-col { width:120px; }
+  #dictionaryTable th.word-col, #dictionaryTable td.word-col { width:110px; }
+  #dictionaryTable th.meaning-col, #dictionaryTable td.meaning-col { width:110px; }
+  #dictionaryTable th.eng-sentence-col, #dictionaryTable td.eng-sentence-col,
+  #dictionaryTable th.ar-sentence-col, #dictionaryTable td.ar-sentence-col { width:auto; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <button class="icon-btn" id="backHome" title="الصفحة الرئيسية">🏠</button>
+  <h1>📘 قاموس الطالب</h1>
+  <div></div>
+</header>
+
+<main class="container">
+  <div class="table-wrap">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-weight:800;font-size:1.03rem;" id="headerTitle">📘 قاموس الطالب</div>
+        <div id="headerSub" class="small-note" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="controls" role="region" aria-label="أزرار التحكم">
+        <button class="btn btn-main" id="openAddModal">أضف كلمة</button>
+        <button class="btn btn-sec" id="insertHereBtn">أضف بين الصفوف</button>
+        <button class="btn btn-sec" id="exportJsonBtn">تصدير JSON</button>
+        <button class="btn btn-sec" id="exportXmlBtn">تصدير XML</button>
+        <button class="btn btn-sec" id="importBtn">استيراد (دمج/استبدال)</button>
+        <input type="file" id="fileInput" accept=".json,.xml" style="display:none">
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+      <div class="small-note">عدد الكلمات: <span id="wordCount" class="count-badge">0</span></div>
+      <div style="text-align:left;">
+        <label style="font-size:0.95rem"><input type="checkbox" id="autoCap"> ضبط الحرف الأول والترقيم تلقائياً</label>
+      </div>
+    </div>
+
+    <table id="dictionaryTable" aria-label="قائمة الكلمات" style="margin-top:12px;">
+      <thead>
+        <tr>
+          <th class="check-col"><input type="checkbox" id="selectAll" aria-label="تحديد الكل"></th>
+          <th class="num-col">#</th>
+          <th class="word-col">الكلمة الإنجليزية</th>
+          <th class="meaning-col">المعنى بالعربي</th>
+          <th class="eng-sentence-col">الجملة الإنجليزية</th>
+          <th class="ar-sentence-col">ترجمة / توضيح الجملة</th>
+          <th class="actions-col">وظائف</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+      <button class="btn btn-danger" id="deleteSelectedBtn">حذف المحدد</button>
+      <button class="btn btn-sec" id="clearAllBtn">حذف الكل</button>
+    </div>
+
+  </div>
+</main>
+
+<footer class="app-footer">❤️❤️ تصميم وتنفيذ: <b>أبو عبدالله</b> — هدية من أب لأبنائه ❤️❤️</footer>
+
+<!-- مودال مشترك -->
+<div id="sharedModalBackdrop">
+  <div id="sharedModal"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ====== دعم الثيم المطبق سابقًا ====== */
+document.body.classList.add(localStorage.getItem("theme") || "theme-blue");
+
+/* ====== مودال صغير + أدوات تفاعل (مقروء وواضح) ====== */
+function showToast(msg, type="ok"){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.background = (type==="warn") ? "#d9534f" : "var(--primary)";
+  t.style.color = "#fff";
+  t.style.opacity = "1";
+  setTimeout(()=> t.style.opacity = "0", 2000);
+}
+
+function showModalForm(title, fields, onok){
+  const backdrop = document.getElementById("sharedModalBackdrop");
+  const box = document.getElementById("sharedModal");
+  let html = `<h2 style="margin-top:0;color:var(--primary)">${title}</h2>`;
+  fields.forEach(f=>{
+    html += `<div style="margin:8px 0;text-align:right;">`;
+    html += `<label style="font-weight:700;display:block;margin-bottom:6px">${f.label}</label>`;
+    if(f.type==="select"){
+      html += `<select id="field_${f.name}" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border)">`;
+      f.options.forEach(opt=> html += `<option value="${opt.value}" ${opt.value==f.value?"selected":""}>${opt.text}</option>`);
+      html += `</select>`;
+    } else {
+      html += `<input id="field_${f.name}" type="text" value="${f.value||""}" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border)">`;
+    }
+    html += `</div>`;
+  });
+  html += `<div style="text-align:left;margin-top:8px"><button class="btn btn-main" id="modalOK">حفظ</button> <button class="btn btn-sec" id="modalCancel">إلغاء</button></div>`;
+  box.innerHTML = html;
+  backdrop.style.display = "flex";
+  document.getElementById("modalCancel").onclick = ()=> backdrop.style.display = "none";
+  document.getElementById("modalOK").onclick = ()=> {
+    const vals = {};
+    fields.forEach(f=> vals[f.name] = document.getElementById(`field_${f.name}`).value);
+    backdrop.style.display = "none";
+    onok(vals);
+  };
+}
+
+function showPrompt(title, label, placeholder, value, onok){
+  showModalForm(title, [{name:"val", label:label, type:"text", value:value||""}], res => onok(res.val));
+}
+
+function showConfirm(title, msg, onyes){
+  const backdrop = document.getElementById("sharedModalBackdrop");
+  const box = document.getElementById("sharedModal");
+  box.innerHTML = `<h2 style="margin-top:0;color:var(--primary)">${title}</h2><p>${msg}</p><div style="text-align:left;margin-top:8px"><button class="btn btn-main" id="yes">نعم</button> <button class="btn btn-sec" id="no">لا</button></div>`;
+  backdrop.style.display = "flex";
+  document.getElementById("no").onclick = ()=> backdrop.style.display = "none";
+  document.getElementById("yes").onclick = ()=> { backdrop.style.display = "none"; if(onyes) onyes(); };
+}
+
+/* ====== تخزين حسب الصف والطالب ====== */
+function storageKey(){
+  const cls = localStorage.getItem("className") || "class";
+  const student = localStorage.getItem("studentName") || "student";
+  return `dictionary_${cls}_${student}`;
+}
+
+/* ====== بيانات القاموس ====== */
+let dictionary = [];
+function loadDictionary(){
+  try{ const raw = localStorage.getItem(storageKey()); dictionary = raw ? JSON.parse(raw) : []; if(!Array.isArray(dictionary)) dictionary = []; }
+  catch(e){ dictionary = []; }
+}
+function saveDictionary(){ localStorage.setItem(storageKey(), JSON.stringify(dictionary)); }
+
+/* ====== عناصر DOM ====== */
+const tbody = document.querySelector("#dictionaryTable tbody");
+const wordCount = document.getElementById("wordCount");
+const selectAllBox = document.getElementById("selectAll");
+const autoCapBox = document.getElementById("autoCap");
+const fileInput = document.getElementById("fileInput");
+
+/* ====== رأس الصفحة ====== */
+(function setHeader(){
+  const cls = localStorage.getItem("className") || "";
+  const student = localStorage.getItem("studentName") || "";
+  document.getElementById("headerSub").textContent = (cls && student) ? `الصف: ${cls} — الطالب: ${student}` : "";
+})();
+
+/* ====== دوال مساعدة ====== */
+function capitalizeFirst(s){ if(!s) return s; s = s.trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
+function ensureSentencePunctuation(s){ if(!s) return s; s = s.trim(); if(/[.!؟!?]$/.test(s)) return s; return s + "."; }
+function normalizeKey(w){ return w.trim().toLowerCase(); }
+function existsWord(word){ const key = normalizeKey(word); return dictionary.some(e => normalizeKey(e.word) === key); }
+
+/* ====== عرض الجدول مع عمود الأرقام ====== */
+function renderTable(){
+  tbody.innerHTML = "";
+  dictionary.forEach((entry, idx)=>{
+    const tr = document.createElement("tr");
+
+    // اختيار
+    const tdCheck = document.createElement("td"); tdCheck.className = "check-col";
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.dataset.idx = idx;
+    tdCheck.appendChild(cb); tr.appendChild(tdCheck);
+
+    // رقم
+    const tdNum = document.createElement("td"); tdNum.className = "num-col"; tdNum.textContent = idx+1; tr.appendChild(tdNum);
+
+    // كلمة
+    const tdWord = document.createElement("td"); tdWord.className = "word-col"; tdWord.textContent = entry.word; tr.appendChild(tdWord);
+
+    // معنى
+    const tdMeaning = document.createElement("td"); tdMeaning.className = "meaning-col"; tdMeaning.textContent = entry.meaning; tr.appendChild(tdMeaning);
+
+    // جملة إنجليزية
+    const tdEng = document.createElement("td"); tdEng.className = "eng-sentence-col"; tdEng.textContent = entry.sentence || ""; tr.appendChild(tdEng);
+
+    // ترجمة
+    const tdAr = document.createElement("td"); tdAr.className = "ar-sentence-col"; tdAr.textContent = entry.translation || ""; tr.appendChild(tdAr);
+
+    // وظائف
+    const tdActions = document.createElement("td"); tdActions.className = "actions-col";
+    // نطق كلمة
+    const speakBtn = document.createElement("button"); speakBtn.className = "icon-btn"; speakBtn.title = `نطق ${entry.word}`; speakBtn.textContent = "🔊";
+    speakBtn.onclick = ()=> speak(entry.word);
+    tdActions.appendChild(speakBtn);
+    // نطق جملة
+    const speakS = document.createElement("button"); speakS.className = "icon-btn"; speakS.title = "نطق الجملة"; speakS.textContent = "🔈";
+    speakS.onclick = ()=> { if(entry.sentence && entry.sentence.trim()!=="") speak(entry.sentence); else showToast("لا توجد جملة", "warn"); };
+    tdActions.appendChild(speakS);
+    // تعديل
+    const editBtn = document.createElement("button"); editBtn.className = "icon-btn"; editBtn.title = "تعديل السطر"; editBtn.textContent = "✏️";
+    editBtn.onclick = ()=> openEditModal(idx);
+    tdActions.appendChild(editBtn);
+    // حذف
+    const delBtn = document.createElement("button"); delBtn.className = "icon-btn"; delBtn.title = "حذف"; delBtn.textContent = "❌";
+    delBtn.onclick = ()=> showConfirm("حذف كلمة", `هل تريد حذف "${entry.word}"؟`, ()=> { dictionary.splice(idx,1); saveDictionary(); renderTable(); showToast("تم الحذف"); });
+    tdActions.appendChild(delBtn);
+
+    tr.appendChild(tdActions);
+    tbody.appendChild(tr);
+  });
+  wordCount.textContent = dictionary.length;
+  selectAllBox.checked = false;
+}
+
+/* ====== النطق ====== */
+function speak(text){
+  if(!window.speechSynthesis){ showToast("ميزة النطق غير مدعومة", "warn"); return; }
+  const s = JSON.parse(localStorage.getItem("appSettings")||"{}");
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = s.accent || "en-GB";
+  u.rate = parseFloat(s.rate || "1");
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+/* ====== إضافة كلمة (مودال) ====== */
+document.getElementById("openAddModal").onclick = ()=> {
+  const positions = [{value:'end', text:'في نهاية القائمة'}];
+  for(let i=0;i<dictionary.length;i++) positions.push({value:String(i), text:`بعد السطر ${i+1}`});
+  showModalForm("أضف كلمة جديدة", [
+    {name:"word", label:"الكلمة الإنجليزية", type:"text", value:""},
+    {name:"meaning", label:"المعنى بالعربي", type:"text", value:""},
+    {name:"sentence", label:"الجملة الإنجليزية (اختياري)", type:"text", value:""},
+    {name:"translation", label:"ترجمة/توضيح بالعربي (اختياري)", type:"text", value:""},
+    {name:"pos", label:"مكان الإدراج", type:"select", options: positions, value:"end"}
+  ], vals=>{
+    let w = vals.word.trim(), m = vals.meaning.trim(), s = vals.sentence.trim(), t = vals.translation.trim();
+    if(!w||!m){ showToast("الرجاء إدخال الكلمة والمعنى", "warn"); return; }
+    if(autoCapBox.checked){ w = capitalizeFirst(w); s = ensureSentencePunctuation(capitalizeFirst(s)); }
+    if(existsWord(w)){ showToast("هذه الكلمة موجودة بالفعل", "warn"); return; }
+    const entry = {word:w, meaning:m, sentence:s, translation:t};
+    if(vals.pos==='end') dictionary.push(entry); else dictionary.splice(parseInt(vals.pos,10)+1,0,entry);
+    saveDictionary(); renderTable(); showToast("تمت الإضافة");
+  });
+};
+
+/* ====== إضافة بين الصفوف ====== */
+document.getElementById("insertHereBtn").onclick = ()=> {
+  const positions = [{value:'end', text:'في نهاية القائمة'}];
+  for(let i=0;i<dictionary.length;i++) positions.push({value:String(i), text:`بعد السطر ${i+1}`});
+  showModalForm("أضف في موضع محدد", [
+    {name:"pos", label:"اختر المكان", type:"select", options: positions},
+    {name:"word", label:"الكلمة الإنجليزية", type:"text"},
+    {name:"meaning", label:"المعنى بالعربي", type:"text"},
+    {name:"sentence", label:"الجملة الإنجليزية (اختياري)", type:"text"},
+    {name:"translation", label:"ترجمة/توضيح بالعربي (اختياري)", type:"text"}
+  ], vals=>{
+    if(!vals.word||!vals.meaning){ showToast("الرجاء إدخال الكلمة والمعنى", "warn"); return; }
+    let w = vals.word.trim(), m = vals.meaning.trim(), s = vals.sentence?vals.sentence.trim():"", t = vals.translation?vals.translation.trim():"";
+    if(autoCapBox.checked){ w = capitalizeFirst(w); s = ensureSentencePunctuation(capitalizeFirst(s)); }
+    if(existsWord(w)){ showToast("هذه الكلمة موجودة بالفعل", "warn"); return; }
+    if(vals.pos==='end') dictionary.push({word:w, meaning:m, sentence:s, translation:t});
+    else dictionary.splice(parseInt(vals.pos,10)+1,0,{word:w, meaning:m, sentence:s, translation:t});
+    saveDictionary(); renderTable(); showToast("تمت الإضافة");
+  });
+};
+
+/* ====== تعديل السطر كامل ====== */
+function openEditModal(index){
+  const e = dictionary[index];
+  showModalForm("تعديل الكلمة", [
+    {name:"word", label:"الكلمة الإنجليزية", type:"text", value:e.word},
+    {name:"meaning", label:"المعنى بالعربي", type:"text", value:e.meaning},
+    {name:"sentence", label:"الجملة الإنجليزية", type:"text", value:e.sentence||""},
+    {name:"translation", label:"ترجمة/توضيح بالعربي", type:"text", value:e.translation||""}
+  ], vals=>{
+    let w = vals.word.trim(), m = vals.meaning.trim(), s = vals.sentence.trim(), t = vals.translation.trim();
+    if(!w||!m){ showToast("الكلمة والمعنى مطلوبان", "warn"); return; }
+    if(autoCapBox.checked){ w = capitalizeFirst(w); s = ensureSentencePunctuation(capitalizeFirst(s)); }
+    const dup = dictionary.some((it,i)=> i!==index && normalizeKey(it.word)===normalizeKey(w));
+    if(dup){ showToast("يوجد كلمة بنفس الاسم بالفعل", "warn"); return; }
+    dictionary[index] = {word:w, meaning:m, sentence:s, translation:t};
+    saveDictionary(); renderTable(); showToast("تم الحفظ");
+  });
+}
+
+/* ====== حذف المحدد / حذف الكل ====== */
+document.getElementById("deleteSelectedBtn").onclick = ()=> {
+  const checked = Array.from(tbody.querySelectorAll('input[type="checkbox"]:checked')).map(cb=>parseInt(cb.dataset.idx,10));
+  if(checked.length===0){ showToast("لم يتم تحديد أي كلمة", "warn"); return; }
+  showConfirm("حذف المحدد", `هل تريد حذف ${checked.length} كلمة؟`, ()=> {
+    checked.sort((a,b)=>b-a).forEach(i=>dictionary.splice(i,1));
+    saveDictionary(); renderTable(); showToast("تم الحذف");
+  });
+};
+document.getElementById("clearAllBtn").onclick = ()=> {
+  showConfirm("حذف الكل", "هل تريد حذف كل الكلمات؟", ()=> {
+    dictionary = []; saveDictionary(); renderTable(); showToast("تم الحذف");
+  });
+};
+
+/* ====== تحديد/إلغاء تحديد الكل ====== */
+selectAllBox.addEventListener("change", ()=> {
+  const checked = selectAllBox.checked;
+  tbody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = checked);
+});
+
+/* ====== تصدير JSON & XML (مصححة) ====== */
+function currentFilenameBase(){
+  const cls = (localStorage.getItem("className")||"class").replace(/\s+/g,'_');
+  const student = (localStorage.getItem("studentName")||"student").replace(/\s+/g,'_');
+  return `${cls}_${student}_${Date.now()}`;
+}
+
+function exportJSON(){
+  if(dictionary.length===0){ showToast("لا توجد كلمات للتصدير","warn"); return; }
+  const data = JSON.stringify(dictionary, null, 2);
+  const blob = new Blob([data], {type:"application/json;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `${currentFilenameBase()}.json`; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportXML(){
+  if(dictionary.length===0){ showToast("لا توجد كلمات للتصدير","warn"); return; }
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<dictionary>\n';
+  dictionary.forEach(it=>{
+    xml += `  <entry>\n    <word>${escapeXml(it.word)}</word>\n    <meaning>${escapeXml(it.meaning)}</meaning>\n    <sentence>${escapeXml(it.sentence||"")}</sentence>\n    <translation>${escapeXml(it.translation||"")}</translation>\n  </entry>\n`;
+  });
+  xml += '</dictionary>';
+  const blob = new Blob([xml], {type:"application/xml;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `${currentFilenameBase()}.xml`; a.click();
+  URL.revokeObjectURL(a.href);
+}
+function escapeXml(s){ if(!s) return ""; return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;"); }
+
+/* وصل الأزرار */
+document.getElementById("exportJsonBtn").onclick = exportJSON;
+document.getElementById("exportXmlBtn").onclick = exportXML;
+
+/* ====== استيراد: يسأل دمج أم استبدال ====== */
+document.getElementById("importBtn").onclick = ()=> { fileInput.value=""; fileInput.click(); };
+fileInput.addEventListener("change", async (ev)=>{
+  const file = ev.target.files[0]; if(!file) return;
+  showModalForm("اختر طريقة الاستيراد", [
+    {name:"mode", label:"طريقة الاستيراد", type:"select", options:[
+      {value:"merge", text:"دمج — إضافة الكلمات الجديدة فقط"},
+      {value:"replace", text:"استبدال — حذف القائمة الحالية بالكامل"}
+    ], value:"merge"}
+  ], async (vals)=>{
+    const mode = vals.mode;
+    const text = await file.text();
+    try {
+      let imported = [];
+      if(file.name.toLowerCase().endsWith('.json')){
+        imported = JSON.parse(text);
+      } else if(file.name.toLowerCase().endsWith('.xml')){
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text,"application/xml");
+        const nodes = Array.from(doc.querySelectorAll("entry"));
+        imported = nodes.map(node=>({
+          word: node.querySelector("word") ? node.querySelector("word").textContent : "",
+          meaning: node.querySelector("meaning") ? node.querySelector("meaning").textContent : "",
+          sentence: node.querySelector("sentence") ? node.querySelector("sentence").textContent : "",
+          translation: node.querySelector("translation") ? node.querySelector("translation").textContent : ""
+        }));
+      } else {
+        showToast("صيغة الملف غير مدعومة", "warn"); return;
+      }
+
+      if(!Array.isArray(imported) || imported.length===0){ showToast("الملف لا يحتوي بيانات قابلة للاستيراد","warn"); return; }
+
+      if(mode === "replace"){
+        dictionary = imported.filter(it => it.word && it.meaning).map(it => ({
+          word: (autoCapBox.checked ? capitalizeFirst(it.word.trim()) : it.word.trim()),
+          meaning: it.meaning.trim(),
+          sentence: it.sentence ? it.sentence.trim() : "",
+          translation: it.translation ? it.translation.trim() : ""
+        }));
+      } else {
+        const existing = new Set(dictionary.map(d => normalizeKey(d.word)));
+        imported.forEach(it=>{
+          if(!it.word || !it.meaning) return;
+          const w = (autoCapBox.checked ? capitalizeFirst(it.word.trim()) : it.word.trim());
+          if(!existing.has(normalizeKey(w))){
+            dictionary.push({word:w, meaning:it.meaning.trim(), sentence:it.sentence?it.sentence.trim():"", translation:it.translation?it.translation.trim():""});
+            existing.add(normalizeKey(w));
+          }
+        });
+      }
+
+      saveDictionary(); renderTable(); showToast("تم الاستيراد بنجاح");
+    } catch(err){
+      console.error(err);
+      showToast("تعذر استيراد الملف، تحقق من الصيغة","warn");
+    }
+  });
+});
+
+/* ====== مساعدة: تحميل بيانات عند التشغيل ====== */
+loadDictionary(); renderTable();
+
+/* ====== ضبط autoCap افتراضياً من الإعدادات إن وُجدت ====== */
+(function initAutoCap(){
+  const s = JSON.parse(localStorage.getItem("appSettings")||"{}");
+  autoCapBox.checked = s.autoCap !== false;
+})();
+
+/* ====== وظائف مساعدة أخرى ====== */
+function downloadBlob(blob, filename){
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ====== زر العودة للصفحة الرئيسية وإعدادات بسيطة ====== */
+document.getElementById("backHome").onclick = ()=> location.href = "index.html";
+
+/* ====== وظائف عرض/تحقق استعداد ====== */
+window.addEventListener("load", () => {
+  // لا شيء إضافي هنا حاليًا
+});
+
+/* ====== دوال المساعدة النصية المستخدمة أعلاه مذكورة سابقاً ====== */
+
+/* ========== نهاية السكربت ========== */
+</script>
+</body>
+</html>

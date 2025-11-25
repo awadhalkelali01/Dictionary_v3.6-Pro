@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>شاشة البداية — قاموس الطالب</title>
+<style>
+  :root{
+    --primary:#0b63a8;
+    --primary-light:#00aaff;
+    --bg:#ffffff;
+    --text:#0b2140;
+  }
+  /* دعم تغيير الثيم عبر إضافة فئة body (theme-...) من الكود الرئيسي) */
+  body.theme-green { --primary:#15803d; --primary-light:#4ade80; --bg:#f0fff4; --text:#06321a; }
+  body.theme-purple { --primary:#7c3aed; --primary-light:#c084fc; --bg:#faf5ff; --text:#2b0646; }
+  body.theme-grey { --primary:#4b5563; --primary-light:#9ca3af; --bg:#f3f4f6; --text:#111827; }
+
+  html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,system-ui; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;}
+  .splash {
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:28px;
+    box-sizing:border-box;
+  }
+
+  .logo {
+    width:128px;
+    height:128px;
+    border-radius:20px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-light));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 12px 30px rgba(11,99,168,0.18);
+    margin-bottom:18px;
+  }
+  .logo img { width:120px; height:120px; }
+
+  h1 {
+    margin:6px 0 4px 0;
+    font-size:1.75rem;
+    font-weight:800;
+    color:var(--primary);
+  }
+  p.lead {
+    margin:0 0 10px 0;
+    font-size:1rem;
+    color:rgba(0,0,0,0.6);
+  }
+
+  .foot-note {
+    position:fixed;
+    bottom:14px;
+    left:0; right:0;
+    text-align:center;
+    font-size:0.95rem;
+    color:#555;
+  }
+
+  .badge {
+    display:inline-block;
+    margin-top:10px;
+    font-weight:700;
+    color:var(--primary);
+    background: rgba(11,99,168,0.06);
+    padding:6px 10px;
+    border-radius:999px;
+  }
+
+  /* small helper for RTL punctuation fix */
+  .center { max-width:720px; }
+
+  @media (max-width:420px){
+    .logo{ width:96px; height:96px }
+    .logo img{ width:48px; height:48px }
+    h1{ font-size:1.35rem }
+  }
+</style>
+</head>
+<body>
+
+<div class="splash" role="main" aria-label="شاشة بداية التطبيق">
+  <div class="logo" aria-hidden="true">
+    <!-- استبدل المسار إذا رغبت بأيقونة مضمنة -->
+    <img src="icons/app-icon-512.png" alt="أيقونة التطبيق" />
+  </div>
+
+  <h1>📘 قاموس الطالب</h1>
+
+  <div class="center">
+    <p class="lead">مرحبًا بك — تصميم وتنفيذ: <strong>أبو عبدالله</strong></p>
+    <div class="badge" id="versionBadge">الإصدار: v3.6 pro</div>
+    <p style="margin-top:12px;color:rgba(0,0,0,0.55)">🌟 هدية من أب لأبنائه — استمتع بتعلم اللغة الإنجيليزية!</p>
+  </div>
+</div>
+
+<div class="foot-note" aria-hidden="true">❤️❤️ تصميم وتنفيذ: أبو عبدالله — هدية من أب لأبنائه ❤️❤️</div>
+
+<!-- صوت ترحيبي اختياري: يستخدم Web Speech API (لا يحتاج ملفات خارجية) -->
+<script>
+  // تطبيق الثيم المحفوظ إن وجد (لن يغير أي منطق)
+  try { document.body.classList.add(localStorage.getItem("theme") || "theme-blue"); } catch(e){}
+
+  // مدة عرض الشاشة (بـ مللي ثانية)
+  const SPLASH_DURATION = 5000;
+
+  // نطق ترحيبي بالعربية (مفعّل افتراضياً — يمكن تعطيله بتغيير المتغير إلى false)
+  const ENABLE_SPEECH = true;
+
+  function speakArabic(text) {
+    if(!ENABLE_SPEECH) return;
+    try {
+      if('speechSynthesis' in window) {
+        const settings = JSON.parse(localStorage.getItem("appSettings") || "{}");
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "ar-SA"; // نطق عربي افتراضي
+        // إن وُجد accent في الإعدادات قد يشير إلى en-.. لكن هنا نترك العربية
+        u.rate = parseFloat(settings.rate || 1);
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      }
+    } catch(e){}
+  }
+
+  // ربط النص بالترحيب (يعتمد على اسم الطالب - يأخذ الاسم الأول إن وُجد)
+  (function autoWelcome(){
+    const student = localStorage.getItem("studentName") || "";
+    const first = (student || "").split(" ")[0] || "";
+    const welcomeText = first ? `مرحبًا يا ${first}، تَمنياتي لك بتعلم ممتع!` : "مرحبًا بك في قاموس الطالب!";
+    // تأخر بسيط حتى تجهز الأصوات على بعض المتصفحات
+    setTimeout(()=> speakArabic(welcomeText), 300);
+  })();
+
+  // بعد انقضاء الوقت ننتقل إلى index.html (أو نغلق الشاشة إذا تشغّل داخل نفس الصفحة)
+  setTimeout(() => {
+    try {
+      // إذا قُدّم هذا السبلاش داخل نافذة مستقلة أو كصفحة تمهيدية، نعيد التوجيه
+      window.location.replace("index.html");
+    } catch(e){}
+  }, SPLASH_DURATION);
+</script>
+
+</body>
+</html>

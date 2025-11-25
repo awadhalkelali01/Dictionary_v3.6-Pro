@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>اختبار معاني الكلمات 🎯</title>
+<style>
+:root{
+  --primary: #0b63a8;
+  --primary-light: #00aaff;
+  --bg:#f4f8fd;
+  --card:#fff;
+  --danger:#e63946;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  background:var(--bg);
+  color:#123;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+header{
+  background:linear-gradient(90deg,var(--primary),var(--primary-light));
+  color:#fff;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center; /* Title centered */
+  gap:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+header .title{font-weight:800;font-size:1.15rem;}
+header .home-btn{position:absolute; left:12px; background:none;border:none;color:#fff;font-size:20px; cursor:pointer;}
+
+/* MAIN BOX */
+.container{
+  max-width:820px;
+  margin:28px auto;
+  width:calc(100% - 36px);
+}
+.box{
+  background:var(--card);
+  border-radius:12px;
+  padding:22px;
+  box-shadow:0 10px 28px rgba(0,0,0,0.08);
+  text-align:center;
+}
+
+/* class info */
+.class-info{
+  color:var(--muted);
+  margin-bottom:8px;
+  font-size:0.95rem;
+}
+
+/* timer and progress */
+.meta {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:8px;
+}
+.timer{
+  font-size:1.2rem;
+  font-weight:800;
+  color:var(--danger);
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.progress {
+  color:var(--muted);
+  font-weight:700;
+}
+
+/* question */
+h2.q-title{margin:18px 0 6px 0;font-size:1.2rem}
+h1.word{
+  font-size:2rem;
+  margin:6px 0 10px 0;
+  font-weight:900;
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+}
+.speak-btn{
+  background:none;border:none;cursor:pointer;font-size:1.6rem;color:var(--primary);
+}
+
+/* options */
+.options{
+  margin-top:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+}
+.option{
+  width:90%;
+  max-width:640px;
+  background:#eef6ff;
+  padding:12px 18px;
+  border-radius:10px;
+  cursor:pointer;
+  border:2px solid transparent;
+  font-size:1.05rem;
+}
+.option:hover{ background:#d7ecff; }
+.option.correct{ background:#c8f7c5 !important; border-color:#34a853; }
+.option.wrong{ background:#ffd4d4 !important; border-color:#d93025; }
+
+/* controls */
+.controls{
+  margin-top:18px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.btn{
+  padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700;
+}
+.btn-main{background:var(--primary);color:#fff}
+.btn-ghost{background:#eef6ff;color:var(--primary)}
+.btn-muted{background:#f1f5f9;color:#333}
+
+/* footer fixed */
+.app-footer{
+  margin-top:auto;
+  text-align:center;
+  padding:12px 10px;
+  color:#444;
+  font-size:0.95rem;
+  background:transparent;
+  position:sticky;
+  bottom:0;
+}
+
+/* responsive */
+@media (max-width:600px){
+  .option{ width:96%; }
+  .word{ font-size:1.6rem }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="home-btn" title="الصفحة الرئيسية" onclick="location.href='index.html'">🏠</button>
+  <div class="title">اختبار معاني الكلمات 🎯</div>
+</header>
+
+<div class="container">
+  <div class="box" id="mainBox">
+
+    <div class="class-info" id="classInfo">الصف: — الطالب: —</div>
+
+    <div class="meta">
+      <div class="timer" id="timerBox">00:00 ⏳</div>
+      <div class="progress" id="progressBox">0 / 0</div>
+    </div>
+
+    <h2 class="q-title">ما معنى الكلمة:</h2>
+
+    <h1 class="word" id="questionWord">—</h1>
+
+    <div class="options" id="optionsBox">
+      <!-- خيارات تظهر هنا -->
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="btn btn-main">بدء الاختبار ▶️</button>
+      <button id="restartBtn" class="btn btn-ghost">بدء اختبار جديد 🔁</button>
+      <button id="showAnswerBtn" class="btn btn-muted">👁 عرض الإجابة</button>
+      <button id="nextBtn" class="btn btn-main" disabled>التالي ➜</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="app-footer">❤️❤️ تصميم وتنفيذ: أبو عبدالله — هدية من أب لأبنائه ❤️❤️</div>
+
+<script>
+/* -----------------------------
+  Quiz logic with requested features
+   - start button
+   - start new test (reset)
+   - progress display e.g. 4/10
+   - stop timer at finish
+   - theme color from appSettings
+------------------------------*/
+
+/* --- utility to read settings --- */
+const appSettings = JSON.parse(localStorage.getItem("appSettings") || "{}");
+if(appSettings.primaryColor) {
+  try { document.documentElement.style.setProperty("--primary", appSettings.primaryColor); } catch(e){}
+}
+if(appSettings.primaryLight) {
+  try { document.documentElement.style.setProperty("--primary-light", appSettings.primaryLight); } catch(e){}
+}
+
+/* --- load dictionary for current student/class --- */
+function storageKey(){
+  const c = localStorage.getItem("className") || "defaultClass";
+  const s = localStorage.getItem("studentName") || "defaultStudent";
+  return `dictionary_${c}_${s}`;
+}
+let dictionary = JSON.parse(localStorage.getItem(storageKey()) || "[]");
+
+/* if no words, show message and stop */
+if(!Array.isArray(dictionary) || dictionary.length === 0){
+  document.getElementById("mainBox").innerHTML = `
+    <div style="padding:40px 10px;font-size:1.1rem;color:#333">
+      لا توجد كلمات في القاموس. الرجاء إضافة كلمات في صفحة القاموس ثم حاول مرة أخرى.
+      <div style="margin-top:16px"><button onclick="location.href='dictionary.html'" class="btn btn-main">فتح القاموس</button></div>
+    </div>`;
+  throw new Error("no words");
+}
+
+/* --- DOM refs --- */
+const classInfoEl = document.getElementById("classInfo");
+const timerBox = document.getElementById("timerBox");
+const progressBox = document.getElementById("progressBox");
+const questionWordEl = document.getElementById("questionWord");
+const optionsBox = document.getElementById("optionsBox");
+const startBtn = document.getElementById("startBtn");
+const restartBtn = document.getElementById("restartBtn");
+const nextBtn = document.getElementById("nextBtn");
+const showAnswerBtn = document.getElementById("showAnswerBtn");
+
+/* --- display class/student --- */
+const className = localStorage.getItem("className") || "";
+const studentName = localStorage.getItem("studentName") || "";
+classInfoEl.textContent = `الصف: ${className || "—"} — الطالب: ${studentName || "—"}`;
+
+/* --- quiz variables --- */
+let usedIndexes = [];     // indexes already asked in this session
+let currentIndex = null;  // index in dictionary of current question
+let currentItem = null;
+let started = false;
+let timer = 0;
+let timerInterval = null;
+
+/* default total questions: either 10 or dictionary.length whichever smaller */
+let totalQuestions = Math.min(10, dictionary.length);
+
+/* progress counters */
+let answeredCount = 0; // how many asked so far (usedIndexes length)
+updateProgress();
+
+/* --- speech --- */
+function speakText(t){
+  if(!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(t);
+  u.lang = appSettings.accent || "en-US";
+  u.rate = appSettings.rate ? parseFloat(appSettings.rate) : 1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+/* --- timer --- */
+function startTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+  timer = 0;
+  timerBox.textContent = formatTime(timer) + " ⏳";
+  timerInterval = setInterval(()=>{
+    timer++;
+    timerBox.textContent = formatTime(timer) + " ⏳";
+  },1000);
+}
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+/* --- progress display --- */
+function updateProgress(){
+  const done = usedIndexes.length;
+  progressBox.textContent = `${done} / ${totalQuestions}`;
+}
+
+/* --- pick next random unused index --- */
+function pickNextIndex(){
+  if(usedIndexes.length >= totalQuestions) return null;
+  let idx;
+  let tries=0;
+  do{
+    idx = Math.floor(Math.random()*dictionary.length);
+    tries++;
+    if(tries>500) break;
+  }while(usedIndexes.includes(idx));
+  return idx;
+}
+
+/* --- render question --- */
+function renderQuestion(){
+  if(!started) return;
+  const idx = pickNextIndex();
+  if(idx === null){
+    finishTest();
+    return;
+  }
+  usedIndexes.push(idx);
+  updateProgress();
+  currentIndex = idx;
+  currentItem = dictionary[idx];
+
+  // show word + speak button
+  // escape single quotes for inline onclick
+  const safeWord = (currentItem.word || "").replace(/'/g,"\\'");
+  questionWordEl.innerHTML = `${currentItem.word || ""} <button class="speak-btn" onclick="(function(){ try{ window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance('${safeWord}'); u.lang='${appSettings.accent||"en-US"}'; u.rate=${appSettings.rate?parseFloat(appSettings.rate):1}; window.speechSynthesis.speak(u);}catch(e){}})()">🔊</button>`;
+
+  // build options (3 choices)
+  const correct = currentItem.meaning || "";
+  const optsSet = new Set([correct]);
+  while(optsSet.size < 3 && optsSet.size < dictionary.length){
+    const r = dictionary[Math.floor(Math.random()*dictionary.length)].meaning || "";
+    optsSet.add(r);
+  }
+  const opts = Array.from(optsSet).sort(()=>Math.random()-0.5);
+
+  optionsBox.innerHTML = "";
+  opts.forEach(opt=>{
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = opt;
+    div.onclick = ()=>{
+      if(div.dataset.answered) return; // prevent double click
+      div.dataset.answered = "1";
+      if(opt === correct) { div.classList.add("correct"); }
+      else { div.classList.add("wrong"); }
+      // reveal correct option visually:
+      document.querySelectorAll(".option").forEach(o=>{
+        if(o.textContent === correct) o.classList.add("correct");
+      });
+      // allow next
+      nextBtn.disabled = false;
+    };
+    optionsBox.appendChild(div);
+  });
+
+  // disable next until answer or until showAnswer pressed
+  nextBtn.disabled = true;
+}
+
+/* --- finish test --- */
+function finishTest(){
+  stopTimer();
+  started = false;
+  // disable controls
+  startBtn.disabled = false;
+  nextBtn.disabled = true;
+  showAnswerBtn.disabled = true;
+  const doneMsg = document.createElement("div");
+  doneMsg.style.marginTop = "14px";
+  doneMsg.style.fontWeight = "800";
+  doneMsg.textContent = "انتهى الاختبار — أحسنت!";
+  optionsBox.innerHTML = "";
+  questionWordEl.textContent = "—";
+  optionsBox.appendChild(doneMsg);
+}
+
+/* --- start handler --- */
+startBtn.addEventListener("click", ()=>{
+  if(started) return;
+  started = true;
+  startBtn.disabled = true;
+  showAnswerBtn.disabled = false;
+  usedIndexes = []; // for a fresh run in this session
+  // keep totalQuestions as set; you can change logic to ask user
+  startTimer();
+  renderQuestion();
+});
+
+/* --- restart new test --- */
+restartBtn.addEventListener("click", ()=>{
+  // reset everything for a new test
+  usedIndexes = [];
+  currentIndex = null;
+  currentItem = null;
+  started = false;
+  stopTimer();
+  timerBox.textContent = formatTime(0) + " ⏳";
+  // optionally allow choosing new totalQuestions; we keep default
+  // enable start
+  startBtn.disabled = false;
+  nextBtn.disabled = true;
+  showAnswerBtn.disabled = true;
+  questionWordEl.textContent = "—";
+  optionsBox.innerHTML = "";
+  updateProgress();
+});
+
+/* --- next button --- */
+nextBtn.addEventListener("click", ()=>{
+  // if reached totalQuestions after pushing current, finish
+  if(usedIndexes.length >= totalQuestions){
+    finishTest();
+    updateProgress();
+    return;
+  }
+  renderQuestion();
+});
+
+/* --- show answer --- */
+showAnswerBtn.addEventListener("click", ()=>{
+  // reveal correct option
+  document.querySelectorAll(".option").forEach(o=>{
+    if(currentItem && o.textContent === currentItem.meaning) o.classList.add("correct");
+  });
+  // enable next
+  nextBtn.disabled = false;
+});
+
+/* --- when usedIndexes reaches totalQuestions stop timer automatically inside renderQuestion/next --- */
+/* update progress whenever usedIndexes changes; we already call updateProgress in renderQuestion */
+
+/* initialize UI */
+updateProgress();
+timerBox.textContent = formatTime(0) + " ⏳";
+showAnswerBtn.disabled = true;
+nextBtn.disabled = true;
+
+/* stop interval on unload */
+window.addEventListener("beforeunload", ()=>{ stopTimer(); });
+
+</script>
+</body>
+</html>

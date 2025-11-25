@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>📘 قاموس الطالب</title>
+<link rel="stylesheet" href="styles.css">
+<script src="modals.js" defer></script>
+<style>
+/* تعديلات محلية بسيطة لظهور العنوان والفرعي */
+.index-title { font-size: 2rem; color: var(--primary); font-weight: 800; margin-bottom: 6px; }
+.index-subtitle { color: #444; font-size: 1.05rem; margin-bottom: 8px; font-weight:700; }
+.index-welcome { font-size: 1.15rem; color: var(--primary); margin-top: 6px; }
+.header-icon { width:120px; display:block; margin:18px auto 8px; }
+.actions { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:18px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div></div>
+  <div style="text-align:center">
+    <h1 style="margin:0">📘 قاموس الطالب</h1>
+  </div>
+  <div>
+    <button id="btnSettings" class="icon-btn" title="الإعدادات">⚙️</button>
+  </div>
+</header>
+
+<main class="container" style="text-align:center; padding-top: 10px;">
+
+  <img src="icons/app-icon.png" alt="app" class="header-icon">
+
+  <div class="index-title">📘 قاموس الطالب</div>
+
+  <!-- هنا يظهر الصف والطالب مرة واحدة فقط -->
+  <div id="indexSubtitle" class="index-subtitle"></div>
+
+  <!-- تحية باسم الأول فقط -->
+  <div id="welcomeLine" class="index-welcome"></div>
+
+  <div class="actions">
+    <button class="btn btn-main" onclick="location.href='students.html'">👨‍🏫 إدارة الصفوف والطلاب</button>
+    <button class="btn btn-main" onclick="location.href='dictionary.html'">📘 فتح قاموس الطالب</button>
+    <button class="btn btn-main" onclick="location.href='quiz.html'">🎯 اختبار الكلمات</button>
+    <button class="btn btn-secondary" onclick="location.href='help.html'">❓ تعليمات الاستخدام</button>
+    <button class="btn btn-secondary" onclick="location.href='about.html'">ℹ️ عن التطبيق</button>
+  </div>
+
+</main>
+
+<footer class="app-footer">
+  ❤️❤️ تصميم وتنفيذ: <b>أبو عبدالله</b> — هدية من أب لأبنائه ❤️❤️
+</footer>
+
+<!-- Shared modal/backdrop placeholders (required by modals.js) -->
+<div id="sharedModalBackdrop" style="display:none;align-items:center;justify-content:center;">
+  <div id="sharedModal"></div>
+</div>
+<div id="toast" aria-hidden="true"></div>
+
+<script>
+/* ======= تفعيل الثيم عند تحميل الصفحة (لا تعديل إضافي مطلوب) ======= */
+document.body.classList.add(localStorage.getItem("theme") || "theme-blue");
+
+/* ======= تحميل بيانات الصف والطالب ======= */
+const cls = localStorage.getItem("className") || "";
+const student = localStorage.getItem("studentName") || "";
+const firstName = (student || "").split(" ")[0] || "";
+
+document.getElementById("indexSubtitle").textContent =
+  cls && student ? `الصف: ${cls} — الطالب: ${student}` : "";
+
+document.getElementById("welcomeLine").textContent =
+  firstName ? `مرحبًا بك يا ${firstName}!` : "";
+
+/* ======= زر الإعدادات: شجرة إعدادات تشمل اختيار الثيم (أزرق/أخضر/بنفسجي/رمادي) ======= */
+document.getElementById("btnSettings").onclick = function () {
+  const s = JSON.parse(localStorage.getItem("appSettings") || "{}");
+  showModalForm("إعدادات التطبيق", [
+    {
+      name: "accent",
+      label: "لهجة النطق",
+      type: "select",
+      options: [
+        { value: "en-GB", text: "بريطانية" },
+        { value: "en-US", text: "أمريكية" },
+        { value: "en-IN", text: "هندية" }
+      ],
+      value: s.accent || "en-GB"
+    },
+    {
+      name: "rate",
+      label: "سرعة النطق",
+      type: "select",
+      options: [
+        { value: "0.75", text: "0.75 بطيء" },
+        { value: "1", text: "1 عادي" },
+        { value: "1.25", text: "1.25 سريع" }
+      ],
+      value: s.rate || "1"
+    },
+    {
+      name: "theme",
+      label: "الثيم (الألوان)",
+      type: "select",
+      options: [
+        { value: "theme-blue", text: "أزرق (افتراضي)" },
+        { value: "theme-green", text: "أخضر" },
+        { value: "theme-purple", text: "بنفسجي" },
+        { value: "theme-grey", text: "رمادي" }
+      ],
+      value: localStorage.getItem("theme") || "theme-blue"
+    }
+  ], vals => {
+    // حفظ إعدادات الصوت
+    const appSettings = {
+      accent: vals.accent,
+      rate: vals.rate,
+      // لا نكتب theme داخل appSettings لضمان فصل الاعدادات
+    };
+    localStorage.setItem("appSettings", JSON.stringify(appSettings));
+
+    // حفظ وتطبيق الثيم فورًا
+    localStorage.setItem("theme", vals.theme);
+    document.body.className = ""; // إزالة أي فئة سابقة
+    document.body.classList.add(vals.theme);
+
+    showToast("تم حفظ الإعدادات");
+  });
+};
+</script>
+
+</body>
+</html>

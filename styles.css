@@ -1,0 +1,340 @@
+/* ==========================================
+   styles.css — النسخة النهائية المحدثة مع نظام الثيمات
+   يحتوي على: تحسينات بصرية + نظام ثيمات (blue, green, purple, grey)
+=========================================== */
+
+/* ==========================================
+   القيم الأساسية (قابل للكتابة عبر الثيمات)
+=========================================== */
+:root {
+    --primary: #0b63a8;
+    --primary-light: #00aaff;
+    --bg: #f9faff;
+    --danger: #d9534f;
+    --success: #28a745;
+    --card: #ffffff;
+    --border: #d9e6f2;
+    --radius: 12px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.12);
+    --text: #222;
+}
+
+/* ==========================================
+   نظام الثيمات (طبق أي اسم فئة body.classList.add('theme-...'))
+=========================================== */
+.theme-blue {
+    --primary: #0b63a8;
+    --primary-light: #00aaff;
+    --bg: #f9faff;
+    --text: #0f2740;
+    --card: #ffffff;
+    --border: #d9e6f2;
+}
+
+.theme-green {
+    --primary: #15803d;
+    --primary-light: #4ade80;
+    --bg: #f0fff4;
+    --text: #0b3a24;
+    --card: #ffffff;
+    --border: #dff5e6;
+}
+
+.theme-purple {
+    --primary: #7c3aed;
+    --primary-light: #c084fc;
+    --bg: #faf5ff;
+    --text: #2b0646;
+    --card: #ffffff;
+    --border: #f0e8ff;
+}
+
+.theme-grey {
+    --primary: #4b5563;
+    --primary-light: #9ca3af;
+    --bg: #f3f4f6;
+    --text: #1f2937;
+    --card: #ffffff;
+    --border: #e6e9ef;
+}
+
+/* ==========================================
+   شريط هوية بصري ثابت أعلى الشاشة
+=========================================== */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    z-index: 999;
+}
+
+/* ==========================================
+   الجسم العام
+=========================================== */
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    color: var(--text);
+    direction: rtl;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================
+   الهيدر
+=========================================== */
+.app-header {
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    color: white;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.subh {
+    margin-top: 2px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+}
+
+/* ==========================================
+   الأزرار (موحّدة وسريعة الاستجابة)
+=========================================== */
+.btn {
+    padding: 10px 14px;
+    border-radius: calc(var(--radius) - 4px);
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    transition: transform 0.12s ease, filter 0.12s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-main {
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(11,99,168,0.12);
+}
+
+.btn-main:hover { filter: brightness(1.03); }
+
+.btn-secondary {
+    background: #fff;
+    color: var(--primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover { background: rgba(0,0,0,0.02); }
+
+.btn-danger {
+    background: #fff0f0;
+    color: var(--danger);
+    border: 1px solid rgba(217,83,79,0.15);
+}
+
+/* أيقونات الأزرار */
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--primary);
+    opacity: 0.9;
+    transition: transform 0.14s ease, opacity 0.14s ease;
+}
+.icon-btn:hover { transform: scale(1.08); opacity: 1; }
+
+/* ==========================================
+   الحاويات والمحتوى
+=========================================== */
+.container {
+    max-width: 980px;
+    margin: 24px auto;
+    padding: 18px;
+}
+
+/* ==========================================
+   الجداول والقاموس
+=========================================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 1.03rem;
+}
+
+th {
+    background: var(--primary);
+    color: white;
+    padding: 12px;
+    border-bottom: 2px solid var(--primary-light);
+    text-align: center;
+    font-weight: 800;
+}
+
+td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* تكبير الكلمة الإنجليزية (العمود 2) لتوضيحها */
+td:nth-child(2) {
+    font-weight: 800;
+    font-size: 1.14rem;
+    color: rgba(0,0,0,0.88);
+}
+
+/* تنسيق الجملة والترجمة */
+td:nth-child(4) {
+    text-align: right;
+    line-height: 1.6;
+}
+td:nth-child(4) i { color: #666; font-size: 0.92rem; }
+
+/* تأثير hover على الصف */
+tr:hover { background: rgba(11,99,168,0.04); transition: background 0.18s ease; }
+
+/* ==========================================
+   بطاقات ومربعات المعلومات
+=========================================== */
+.info-card {
+    background: var(--card);
+    padding: 18px;
+    margin-bottom: 18px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.info-card-empty {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px dashed #ccc;
+}
+
+/* ==========================================
+   بطاقات الطلاب
+=========================================== */
+.student-item {
+    background: rgba(0,0,0,0.02);
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: calc(var(--radius) - 4px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.student-buttons button { margin-left: 8px; }
+
+/* ==========================================
+   Toast إشعارات صغيرة
+=========================================== */
+#toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 800;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transition: opacity 0.28s ease, bottom 0.28s ease;
+    z-index: 9999;
+    pointer-events: none;
+}
+#toast.show { opacity: 1; bottom: 44px; }
+
+/* ==========================================
+   مودالات (Shared)
+=========================================== */
+#sharedModalBackdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+}
+#sharedModal {
+    background: var(--card);
+    padding: 20px;
+    width: 92%;
+    max-width: 460px;
+    border-radius: calc(var(--radius) - 2px);
+    box-shadow: var(--shadow);
+    text-align: right;
+    font-size: 1.03rem;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   Footer ثابت أسفل الصفحة
+=========================================== */
+.app-footer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    text-align: center;
+    padding: 10px 0;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(6px);
+    font-size: 0.95rem;
+    color: #444;
+    z-index: 900;
+    border-top: 1px solid rgba(0,0,0,0.04);
+}
+
+/* ==========================================
+   الصفحة الاختبار (Quiz) تحسينات
+=========================================== */
+.quiz-word { font-size: 1.45rem; font-weight: 900; color: var(--primary); margin: 8px 0; text-align:center; }
+.options .opt-btn { min-width: 140px; padding: 12px 16px; border-radius: 10px; font-weight: 800; }
+.opt-btn.correct { background: rgba(40,167,69,0.12); border-color: rgba(40,167,69,0.25); color: #0b5f2b; }
+.opt-btn.wrong { background: rgba(217,83,79,0.12); border-color: rgba(217,83,79,0.25); color: #6b1e1e; }
+
+/* ==========================================
+   Responsive adjustments
+=========================================== */
+@media (max-width: 800px) {
+    .container { margin: 12px; padding: 12px; }
+    td:nth-child(2) { font-size: 1.06rem; }
+    .quiz-word { font-size: 1.25rem; }
+    .options .opt-btn { min-width: 110px; font-size: 0.98rem; padding: 10px 12px; }
+}
+
+@media (max-width: 480px) {
+    .container { margin: 8px; padding: 10px; }
+    .app-header h1 { font-size: 1.2rem; }
+    .icon-btn { font-size: 1.05rem; }
+    th, td { font-size: 0.98rem; padding: 10px 6px; }
+}
