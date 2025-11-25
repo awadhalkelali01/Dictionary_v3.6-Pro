@@ -4,7 +4,7 @@
   "description": "تطبيق تعليمي لإدارة قاموس الكلمات، نطق الإنجليزية، والاختبارات — تصميم وتنفيذ أبو عبدالله.",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "/index.html",
+  "start_url": "/splash.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -30,3 +30,4 @@
     }
   ]
 }
+
