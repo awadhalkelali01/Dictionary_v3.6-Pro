@@ -4,7 +4,7 @@
 //   يدعم PWA / Offline بالكامل
 // =============================
 
-const CACHE_NAME = "dictionary-app-v3.6";
+const CACHE_NAME = "dictionary-app-v3.7";
 const CORE_ASSETS = [
   "/", 
   "/index.html",
@@ -84,3 +84,4 @@ self.addEventListener("fetch", event => {
     })
   );
 });
+
